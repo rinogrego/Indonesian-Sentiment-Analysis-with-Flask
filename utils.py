@@ -5,6 +5,9 @@ import pandas as pd
 import tensorflow as tf
 from transformers import AutoTokenizer, TFAutoModel
 
+import matplotlib.pyplot as plt
+import io, base64
+
 
 """ TEXT PREPROCESSING """
 
@@ -100,4 +103,42 @@ input_mask = tf.keras.layers.Input(shape=(128,), dtype=np.int32, name="input_mas
 bert_embedding = bert_model([input_token, input_mask])[0]
 lstm_cnn_dense_model = tf.keras.models.load_model('model/lstm-cnn.h5', compile=False)(bert_embedding)
 model = tf.keras.models.Model(inputs=[input_token, input_mask], outputs=lstm_cnn_dense_model)
+
+
+
+""" PLOTTING """
+
+def plot_sentiment(sentiment_results):
+    # initialize figure
+    plt.switch_backend('AGG')
+    plt.figure(figsize=(10, 6))
     
+    # draw the results
+    plt.bar(
+        x = ["Senang", "Neutral", "Kecewa", "Saran", "Penasaran", "Komplain"],
+        height = sentiment_results,
+        color = ["green", "gray", "red", "lightgreen", "gold", "darkred"]
+    )
+    
+    # configure plot label
+    plt.xlabel("Sentimen")
+    plt.ylabel("Skor Sentimen")
+  
+    # adjusts the size of the chart to the size of the figure
+    plt.tight_layout()
+    
+    # get the stream data
+    chart = get_graph()
+    
+    return chart
+
+
+def get_graph():
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    graph = base64.b64encode(image_png)
+    graph = graph.decode('utf-8')
+    buffer.close()
+    return graph
