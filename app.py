@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, jsonify
 
-from utils import clean_text, create_input, model, plot_sentiment
+from utils import clean_text, create_input, get_model, plot_sentiment
 
 app = Flask(__name__)
 
@@ -13,6 +13,7 @@ def index():
         text = clean_text(raw_text)
         token, mask = create_input([text])
         
+        model = get_model()
         sentiment_result = model.predict([token, mask])
         happy = float(sentiment_result[0][0][0])
         neutral = float(sentiment_result[0][0][1])
@@ -52,6 +53,7 @@ def api_sentiment():
     curiosity = []
     complaint = []
     
+    model = get_model()
     sentiment_results = model.predict(token_mask_inputs)
     for idx in range(len(sentiment_results[0])):
         # multi-class result
