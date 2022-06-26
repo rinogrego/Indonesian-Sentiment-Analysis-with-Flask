@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, jsonify
+from itsdangerous import json
 
-from utils import clean_text, create_input, model, plot_sentiment
+from utils import clean_text, create_input, model, plot_sentiment, np
 
 app = Flask(__name__)
 
@@ -11,7 +12,7 @@ def index():
     elif request.method == "POST":
         raw_text = request.form['input_text']
         text = clean_text(raw_text)
-        token, mask = create_input(text)
+        token, mask = create_input([text])
         
         sentiment_result = model.predict([token, mask])
         happy = float(sentiment_result[0][0][0])
@@ -40,8 +41,10 @@ def index():
 def api_sentiment():
     
     raw_texts = request.get_json(force=True)['text']
-    texts = [clean_text(text) for text in raw_texts]
-    token_mask_set = [create_input(text) for text in texts]
+    if len(raw_texts) > 10:
+        return jsonify("Input text limit: Please provide no more than 10 texts")
+    texts = [clean_text(raw_text) for raw_text in raw_texts]
+    token_mask_inputs = create_input(texts)
     
     happy = []
     neutral = []
@@ -50,18 +53,20 @@ def api_sentiment():
     curiosity = []
     complaint = []
     
-    for token, mask in token_mask_set:
-        sentiment_result = model.predict([token, mask])
-        happy.append(float(sentiment_result[0][0][0]))
-        neutral.append(float(sentiment_result[0][0][1]))
-        disappointment.append(float(sentiment_result[0][0][2]))
-        advice.append(float(sentiment_result[1][0][0]))
-        curiosity.append(float(sentiment_result[1][0][1]))
-        complaint.append(float(sentiment_result[1][0][2]))
+    sentiment_results = model.predict(token_mask_inputs)
+    for idx in range(len(sentiment_results[0])):
+        # multi-class result
+        happy.append(float(sentiment_results[0][idx][0]))
+        neutral.append(float(sentiment_results[0][idx][1]))
+        disappointment.append(float(sentiment_results[0][idx][2]))
+        # multi-label result
+        advice.append(float(sentiment_results[1][idx][0]))
+        curiosity.append(float(sentiment_results[1][idx][1]))
+        complaint.append(float(sentiment_results[1][idx][2]))
     
-    sentiment_result = {}
+    result = {}
     for i, raw_text in enumerate(raw_texts):
-        sentiment_result[f'result_{i}'] = {
+        result[f'result_{i}'] = {
             'id': i,
             'text': raw_text,
             'sentiment': {
@@ -78,7 +83,7 @@ def api_sentiment():
             }
         }
     
-    return jsonify(sentiment_result)
+    return jsonify(result)
 
 
 if __name__ == '__main__':

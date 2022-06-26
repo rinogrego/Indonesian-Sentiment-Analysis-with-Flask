@@ -83,12 +83,13 @@ def tokenisasi(teks):
   
 
 # Pendefinisian fungsi untuk mengambil hasil tokenisasi pada semua data
-def create_input(text):
+def create_input(text_list):
     tokenID, input_mask = [], []
     
-    token, mask = tokenisasi(text)
-    tokenID.append(token)
-    input_mask.append(mask)
+    for teks in text_list:
+        token, mask = tokenisasi(teks)
+        tokenID.append(token)
+        input_mask.append(mask)
     
     return [np.asarray(tokenID, dtype=np.int32).reshape(-1, 128), 
             np.asarray(input_mask, dtype=np.int32).reshape(-1, 128)]
