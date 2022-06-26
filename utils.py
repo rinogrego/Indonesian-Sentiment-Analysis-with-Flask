@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import io, base64
 
 
+
 """ TEXT PREPROCESSING """
 
 kamus_alay = pd.read_csv('https://raw.githubusercontent.com/nasalsabila/kamus-alay/master/colloquial-indonesian-lexicon.csv')
@@ -96,13 +97,23 @@ def create_input(text):
     
 """ MODEL """
 
-bert_model = TFAutoModel.from_pretrained("indobenchmark/indobert-lite-large-p2", trainable=False)
-
+# load pretrained indobert that have been saved locally
+bert_model = TFAutoModel.from_pretrained("model/indobert-lite-large-p2", trainable=False)
+# build model
 input_token = tf.keras.layers.Input(shape=(128,), dtype=np.int32, name="input_token")
 input_mask = tf.keras.layers.Input(shape=(128,), dtype=np.int32, name="input_mask")
 bert_embedding = bert_model([input_token, input_mask])[0]
+## lstm-cnn.h5 contains trained layers that have been extracted right after the bert_embedding layer
 lstm_cnn_dense_model = tf.keras.models.load_model('model/lstm-cnn.h5', compile=False)(bert_embedding)
 model = tf.keras.models.Model(inputs=[input_token, input_mask], outputs=lstm_cnn_dense_model)
+
+# more straightforward code for loading the pretrained model, but more costly in memory
+# bert_model = TFAutoModel.from_pretrained("model/indobert-lite-large-p2", trainable=False)
+# model = tf.keras.models.load_model(
+#     'model/indobert-lite-large-p2/bert-lite-large-lstm-cnn.h5', 
+#     compile=False, 
+#     custom_objects={'TFAlbertModel': bert_model}
+# )
 
 
 
