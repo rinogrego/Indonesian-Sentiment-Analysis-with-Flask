@@ -1,7 +1,6 @@
 from flask import Flask, request, render_template, jsonify
-from itsdangerous import json
 
-from utils import clean_text, create_input, model, plot_sentiment, np
+from utils import clean_text, create_input, model, plot_sentiment
 
 app = Flask(__name__)
 
