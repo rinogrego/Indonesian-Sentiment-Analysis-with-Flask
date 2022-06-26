@@ -1,8 +1,9 @@
 import re
-import numpy as np
-import pandas as pd
+from numpy import asarray, int32
+from pandas import read_csv
 
-import tensorflow as tf
+from tensorflow.keras.layers import Input
+from tensorflow.keras.models import load_model, Model
 from transformers import AutoTokenizer, TFAutoModel
 
 import matplotlib.pyplot as plt
@@ -12,7 +13,7 @@ import io, base64
 
 """ TEXT PREPROCESSING """
 
-kamus_alay = pd.read_csv('https://raw.githubusercontent.com/nasalsabila/kamus-alay/master/colloquial-indonesian-lexicon.csv')
+kamus_alay = read_csv('https://raw.githubusercontent.com/nasalsabila/kamus-alay/master/colloquial-indonesian-lexicon.csv')
 
 # dictionary to map incorrect word with corresponding correct word
 nor_dict = {}
@@ -91,8 +92,8 @@ def create_input(text_list):
         tokenID.append(token)
         input_mask.append(mask)
     
-    return [np.asarray(tokenID, dtype=np.int32).reshape(-1, 128), 
-            np.asarray(input_mask, dtype=np.int32).reshape(-1, 128)]
+    return [asarray(tokenID, dtype=int32).reshape(-1, 128), 
+            asarray(input_mask, dtype=int32).reshape(-1, 128)]
     
 
     
@@ -102,12 +103,12 @@ def create_input(text_list):
 def get_model():
     bert_model = TFAutoModel.from_pretrained("model/indobert-lite-large-p2", trainable=False)
     # build model
-    input_token = tf.keras.layers.Input(shape=(128,), dtype=np.int32, name="input_token")
-    input_mask = tf.keras.layers.Input(shape=(128,), dtype=np.int32, name="input_mask")
+    input_token = Input(shape=(128,), dtype=int32, name="input_token")
+    input_mask = Input(shape=(128,), dtype=int32, name="input_mask")
     bert_embedding = bert_model([input_token, input_mask])[0]
     ## lstm-cnn.h5 contains trained layers that have been extracted right after the bert_embedding layer
-    lstm_cnn_dense_model = tf.keras.models.load_model('model/lstm-cnn.h5', compile=False)(bert_embedding)
-    model = tf.keras.models.Model(inputs=[input_token, input_mask], outputs=lstm_cnn_dense_model)
+    lstm_cnn_dense_model = load_model('model/lstm-cnn.h5', compile=False)(bert_embedding)
+    model = Model(inputs=[input_token, input_mask], outputs=lstm_cnn_dense_model)
 
     del bert_model, input_token, input_mask, bert_embedding, lstm_cnn_dense_model
     return model
