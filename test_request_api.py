@@ -1,5 +1,17 @@
 import requests
 import pprint
+import argparse
+import time
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--seconds", help="Delay the test API call in seconds. Default: 1 second.", type=int)
+args = parser.parse_args()
+seconds = args.seconds
+if seconds is None:
+    seconds = 1
+    
+time.sleep(seconds)
+
 
 url = 'http://localhost:5000/api/sentiment'
 data = {
