@@ -9,6 +9,8 @@ from transformers import AutoTokenizer, TFAutoModel
 import matplotlib.pyplot as plt
 import io, base64
 
+import gc
+
 
 
 """ TEXT PREPROCESSING """
@@ -111,6 +113,7 @@ def get_model():
     model = Model(inputs=[input_token, input_mask], outputs=lstm_cnn_dense_model)
 
     del bert_model, input_token, input_mask, bert_embedding, lstm_cnn_dense_model
+    gc.collect()
     return model
 
 # more straightforward code for loading the pretrained model, but more costly in memory

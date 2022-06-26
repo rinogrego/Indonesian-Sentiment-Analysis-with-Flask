@@ -2,6 +2,8 @@ from flask import Flask, request, render_template, jsonify
 
 from utils import clean_text, create_input, get_model, plot_sentiment
 
+import gc
+
 app = Flask(__name__)
 
 @app.route('/', methods=["GET", "POST"])
@@ -85,6 +87,7 @@ def api_sentiment():
         }
     
     del model, happy, neutral, disappointment, advice, curiosity, complaint, sentiment_results, token_mask_inputs, texts, raw_texts
+    gc.collect()
     
     return jsonify(result)
 
