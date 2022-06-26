@@ -112,8 +112,6 @@ def get_model():
     lstm_cnn_dense_model = load_model('model/lstm-cnn.h5', compile=False)(bert_embedding)
     model = Model(inputs=[input_token, input_mask], outputs=lstm_cnn_dense_model)
 
-    del bert_model, input_token, input_mask, bert_embedding, lstm_cnn_dense_model
-    gc.collect()
     return model
 
 # more straightforward code for loading the pretrained model, but more costly in memory

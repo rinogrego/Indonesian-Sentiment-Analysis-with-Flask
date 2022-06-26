@@ -86,9 +86,6 @@ def api_sentiment():
             }
         }
     
-    del model, happy, neutral, disappointment, advice, curiosity, complaint, sentiment_results, token_mask_inputs, texts, raw_texts
-    gc.collect()
-    
     return jsonify(result)
 
 
