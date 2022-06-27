@@ -41,8 +41,9 @@ def index():
 def api_sentiment():
     
     raw_texts = request.get_json(force=True)['text']
+    # raw texts limitation. could be modified
     if len(raw_texts) > 5:
-        return jsonify({"Input text limit: Please provide no more than 10 texts"})
+        return jsonify({"Input text limit: Please provide no more than 5 texts"})
     texts = [clean_text(raw_text) for raw_text in raw_texts]
     token_mask_inputs = create_input(texts)
     
