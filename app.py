@@ -88,7 +88,7 @@ def api_sentiment():
             }
         })
     
-    return jsonify(result)
+    return jsonify(results=result)
 
 
 if __name__ == '__main__':
