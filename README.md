@@ -58,7 +58,7 @@ If you want to see how to access the API and how to structure the data to send a
 ```
 By sending POST request to the given URL:
 ```
-POST /api/assess
+POST /api/sentiment
 ```
 With the following json structure:
 ```
