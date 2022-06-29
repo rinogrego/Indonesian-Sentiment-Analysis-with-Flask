@@ -1,10 +1,10 @@
-# Indonesian Text Sentiment Analysis with Flask
+# Indonesian Text Sentiment Analysis Deployment with Flask
 
 Deployment of Text Sentiment Analysis in Bahasa Indonesia with Flask as a website and an API.
 
 ## Model
 
-The model was trained on 4000 text data (that I manually labeled) in Indonesian language from the reviews of an ecommerce in Indonesia with training and validation split ratio of 80:20. The bert model that is used is [indobert](https://huggingface.co/indobenchmark/indobert-lite-large-p2/) for both the tokenizer and the model which have vocab_size of 30000 words.
+The model was trained with Keras on 4000 text data (that I manually labeled) in Indonesian language from the reviews of an ecommerce in Indonesia with training and validation split ratio of 80:20. The bert model that is used is [indobert](https://huggingface.co/indobenchmark/indobert-lite-large-p2/) for both the tokenizer and the model which have vocab_size of 30000 words.
 
 ## Sentiments
 
@@ -50,7 +50,68 @@ The site is deployed in Heroku and can be accessed [here](https://teks-sentimen-
     python app.py
 ```
 6. To see the website navigate to your localhost from the browser (url: http://localhost:5000)
-7. If you want to see how to access the API and how to structure the data to send as a POST request, open test_request_api.py. You can run the following command from the terminal to see the example result which will be printed in the terminal (need to run step 5 first).
+
+## API
+If you want to see how to access the API and how to structure the data to send as a POST request, open test_request_api.py. You can run the following command from the terminal to see the example result which will be printed in the terminal (need to run step 5 first).
 ```
     python test_request_api.py
+```
+By sending POST request to the given URL:
+```
+POST /api/assess
+```
+With the following json structure:
+```
+{
+    "text": [
+        "Itu kenapa dah? kok rusak? kecewa banget gw",
+        "Alhamdulillah berhasil terima kasih yaa saya akan tambahkan bintang. Namun saran aja tolong dipercepat proses pengantarannya",
+    ]
+}
+```
+The example json responses are:
+- if the structure of the json object for the text is incorrect
+```
+{
+    "error_message": "Text not found. Please provide a proper json structure."
+}
+```
+- if all the predictions are successful
+```
+{
+    'results': [
+        {
+            'id': 0,
+            'sentiment': {
+                'multi-class': {
+                    'disappointment': 0.9885371923446655,
+                    'happy': 3.883050521835685e-05,
+                    'neutral': 0.011424023658037186
+                },
+                'multi-label': {
+                    'advice': 0.0013149981386959553,
+                    'complaint': 0.9839465618133545,
+                    'curiosity': 0.577165424823761
+                }
+            },
+            'text': 'Itu kenapa dah? kok rusak? kecewa banget gw'
+        },
+        {
+            'id': 1,
+            'sentiment': {
+                'multi-class': {
+                    'disappointment': 0.00047941409866325557,
+                    'happy': 0.9847936034202576,
+                    'neutral': 0.014726927503943443
+                },
+                'multi-label': {
+                    'advice': 0.8429886698722839,
+                    'complaint': 0.2413901537656784,
+                    'curiosity': 0.05576743558049202
+                }
+            },
+            'text': 'Alhamdulillah berhasil terima kasih yaa saya akan tambahkan bintang. Namun saran aja tolong dipercepat proses pengantarannya'
+        }
+    ]
+}
 ```
