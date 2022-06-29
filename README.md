@@ -23,7 +23,7 @@ where the first 3 are outputs of multi-class classification and the last 3 are o
 
 ### Online
 
-The site is deployed in Heroku and can be accessed [here](https://teks-sentimen-analisis.herokuapp.com). Though there are some technical problems that I have no clue how to fix such as memory leakage.
+The site is deployed in Heroku and can be accessed [here](https://teks-sentimen-analisis.herokuapp.com). Though there are some technical problems that I have no clue how to fix such as memory leakage. Also, processing things in heroku for more than 30 seconds will give an error (at least for the free tier that I use) so I give a limit to the number of text that can be processed via API (this can be modified or removed for local deployment).
 
 ### Local
 
