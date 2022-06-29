@@ -40,10 +40,14 @@ def index():
 @app.route('/api/sentiment', methods=["POST"])
 def api_sentiment():
     
-    raw_texts = request.get_json(force=True)['text']
+    r = request.get_json(force=True)
+    try:
+        raw_texts = r['text']
+    except KeyError:
+        return jsonify({"error_message": "Text not found. Please provided a proper json structure."})
     # raw texts limitation. could be modified
     if len(raw_texts) > 5:
-        return jsonify({"Input text limit: Please provide no more than 5 texts"})
+        return jsonify({"error_message: Please provide no more than 5 texts"})
     texts = [clean_text(raw_text) for raw_text in raw_texts]
     token_mask_inputs = create_input(texts)
     
@@ -65,9 +69,9 @@ def api_sentiment():
         curiosity.append(float(sentiment_results[1][idx][1]))
         complaint.append(float(sentiment_results[1][idx][2]))
     
-    result = {}
+    result = []
     for i, raw_text in enumerate(raw_texts):
-        result[f'result_{i}'] = {
+        result.append({
             'id': i,
             'text': raw_text,
             'sentiment': {
@@ -82,7 +86,7 @@ def api_sentiment():
                     'complaint': complaint[i],
                 }
             }
-        }
+        })
     
     return jsonify(result)
 
