@@ -3,6 +3,8 @@ from flask import Flask, request, render_template, jsonify
 from utils import clean_text, create_input, plot_sentiment
 from model import model
 
+from keras import backend as K
+
 app = Flask(__name__)
 
 @app.route('/', methods=["GET", "POST"])
@@ -23,6 +25,8 @@ def index():
         complaint = float(sentiment_result[1][0][2])
         
         sentiment_viz = plot_sentiment([happy, neutral, disappointment, advice, curiosity, complaint])
+        
+        K.clear_session()
         
         return render_template(
             'index.html',
@@ -87,6 +91,8 @@ def api_sentiment():
                 }
             }
         })
+        
+    K.clear_session()
     
     return jsonify(results=result)
 
