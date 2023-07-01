@@ -4,6 +4,7 @@ from utils import clean_text, create_input, plot_sentiment
 from model import model
 
 from keras import backend as K
+import datetime
 
 app = Flask(__name__)
 
@@ -12,11 +13,12 @@ def index():
     if request.method == "GET":
         return render_template('index.html')
     elif request.method == "POST":
+        s = datetime.datetime.now()
         raw_text = request.form['input_text']
         text = clean_text(raw_text)
         token, mask = create_input([text])
         
-        sentiment_result = model.predict([token, mask])
+        sentiment_result = model([token, mask], training=False)
         happy = float(sentiment_result[0][0][0])
         neutral = float(sentiment_result[0][0][1])
         disappointment = float(sentiment_result[0][0][2])
@@ -27,6 +29,8 @@ def index():
         sentiment_viz = plot_sentiment([happy, neutral, disappointment, advice, curiosity, complaint])
         
         K.clear_session()
+        print("  Text       :", raw_text)
+        print("  Time spent :", datetime.datetime.now() - s)
         
         return render_template(
             'index.html',
@@ -99,4 +103,4 @@ def api_sentiment():
 
 if __name__ == '__main__':
     # app.run(debug=True, use_reloader=False)
-    app.run(debug=True, port=os.getenv("PORT", default=5000))
+    app.run(debug=True, port=5000, host='0.0.0.0')
